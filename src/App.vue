@@ -28,7 +28,7 @@ export default defineComponent({
       that.form = json.form;
     });
     oReq.addEventListener('error', function() {
-      console.log('Test server not available using static copy of JSON');
+      console.log('WARNING!!! Test server is not available using sample.js');
       that.form = response.form;
     });
     oReq.open('GET', this.apiURL)
