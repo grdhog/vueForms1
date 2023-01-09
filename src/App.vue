@@ -1,14 +1,11 @@
 <script>
 import { defineComponent } from 'vue'
-import HelloWorld from './components/HelloWorld.vue'
-
 import { response } from './sample.js'
 
 
 export default defineComponent({
   name: 'App',
   components: {
-    HelloWorld,
   },
   data: {
     form: {},
@@ -135,6 +132,11 @@ export default defineComponent({
       })
       return numErrors
     },
+    printErrors: function () {
+      this.form.fields.forEach((field) => {
+        if (field.error !== '') console.log(field.name, ': ', field.error);
+      })
+    },
     setAllTouched: function () {
       //console.log('setAllTouched')
       for (const field of this.form.fields) {
@@ -142,12 +144,15 @@ export default defineComponent({
       }
     },
     attemptSubmit: function (event) {
+      console.log('in attemptSubmit');
       event.preventDefault()
       this.setAllTouched()
       this.validateAll()
+      console.log('the error count is: ', this.errorCount() );
       if (this.allowInvalidSubmission || this.errorCount() === 0) {
         this.submit()
       }
+      this.printErrors();
     },
     showModal: function (msg, interval) {
       this.displayModal = true
