@@ -2,17 +2,16 @@
 import { defineComponent } from 'vue'
 import { response } from './sample.js'
 
-
 export default defineComponent({
   name: 'App',
-  components: {
-  },
+  components: {},
   data: {
     form: {},
     state: 'entering',
     modalMessage: '',
     response: {},
     allowInvalidSubmission: true,
+    haveCloseButton: false,
     apiURL: 'http://54.252.3.209:8000/test-form-submission/128/',
     recaptchaID: '',
   },
@@ -22,12 +21,12 @@ export default defineComponent({
     var that = this
     oReq.addEventListener('load', function () {
       var json = JSON.parse(this.responseText)
-      that.form = json.form;
-    });
-    oReq.addEventListener('error', function() {
-      console.log('WARNING!!! Test server is not available using sample.js');
-      that.form = response.form;
-    });
+      that.form = json.form
+    })
+    oReq.addEventListener('error', function () {
+      console.log('WARNING!!! Test server is not available using sample.js')
+      that.form = response.form
+    })
     oReq.open('GET', this.apiURL)
     oReq.send()
   },
@@ -75,17 +74,17 @@ export default defineComponent({
         console.log(`${pair[0]}, ${pair[1]}`)
       }
       XHR.addEventListener('load', function () {
-        console.log('this.responseText', this.responseText);
+        console.log('this.responseText', this.responseText)
         //this is the loads this
         let json = JSON.parse(this.responseText)
         that.response = json
       })
       XHR.addEventListener('error', function () {
-        that.showModal('Oops something went wrong! Please try submitting again in 15 seconds.')
+        that.showModal('Oops something went wrong! Please try submitting again in 15 seconds', 0)
       })
       XHR.open('POST', this.apiURL)
-      XHR.send(fdata);
-      that.showModal('Submitting your form. Please wait for confirmation', 2000);
+      XHR.send(fdata)
+      that.showModal('Submitting your form... Please wait for confirmation', 2000)
     },
     handleBlur: function (event) {
       //console.log('handleBlur', event.target.name)
@@ -134,7 +133,7 @@ export default defineComponent({
     },
     printErrors: function () {
       this.form.fields.forEach((field) => {
-        if (field.error !== '') console.log(field.name, ': ', field.error);
+        if (field.error !== '') console.log(field.name, ': ', field.error)
       })
     },
     setAllTouched: function () {
@@ -144,25 +143,30 @@ export default defineComponent({
       }
     },
     attemptSubmit: function (event) {
-      console.log('in attemptSubmit');
+      console.log('in attemptSubmit')
       event.preventDefault()
       this.setAllTouched()
       this.validateAll()
-      console.log('the error count is: ', this.errorCount() );
+      console.log('the error count is: ', this.errorCount())
       if (this.allowInvalidSubmission || this.errorCount() === 0) {
         this.submit()
       }
-      this.printErrors();
+      this.printErrors()
     },
-    showModal: function (msg, interval) {
+    showModal: function (msg, interval=0) {
       // Having a msg leads to display
-      this.modalMessage = msg;
-      this.$refs.modal.style.display = 'block';  
-      if (interval) setTimeout(this.closeModal, interval);
+      this.modalMessage = msg
+      this.$refs.modal.style.display = 'block'
+      if (interval) {
+        setTimeout(this.closeModal, interval)
+        this.haveCloseButton = false
+      } else {
+        this.haveCloseButton = true
+      }
     },
     closeModal: function () {
-      this.modalMessage = '';
-      this.$refs.modal.style.display = 'none';      
+      this.modalMessage = ''
+      this.$refs.modal.style.display = 'none'
     },
     required: function (field) {
       if (typeof field.value === 'boolean') {
@@ -323,7 +327,9 @@ export default defineComponent({
             <h2>{{ modalMessage }}</h2>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-default" v-on:click="closeModal">Close</button>
+            <button v-show="haveCloseButton" type="button" class="btn btn-default" v-on:click="closeModal">
+              Close
+            </button>
           </div>
         </div>
       </div>
