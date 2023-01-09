@@ -135,7 +135,7 @@ export const response = {
         html_type: '',
         validation: [],
         required: true,
-        value: '0lcolh98',
+        value: 'k9t4uhlq',
         help: '',
       },
       {
@@ -146,10 +146,11 @@ export const response = {
         field_type: 'wax',
         html_type: '',
         required: false,
+        validation: [],
         value: '',
         help: '',
       },
     ],
-    csrf_token: 'yuEH9g36LH02QLhDCzgVEu5Q1bYNR1bERQhZqJvfo4mevDwZGGDS2ERIoRKYA1gm',
+    csrf_token: 'znZ1ZLSjpo3MFeXmkGVuCgSBHDR3sstPSJCjgeks2LpYk6cIoNir0qEt4jDebsyx',
   },
 }
