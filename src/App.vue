@@ -10,9 +10,9 @@ export default defineComponent({
   data: {
     form: {},
     state: 'entering',
-    displayModal: true,
+    modalMessage: '',
     response: {},
-    allowInvalidSubmission: false,
+    allowInvalidSubmission: true,
     apiURL: 'http://54.252.3.209:8000/test-form-submission/128/',
     recaptchaID: '',
   },
@@ -74,18 +74,18 @@ export default defineComponent({
       for (const pair of fdata.entries()) {
         console.log(`${pair[0]}, ${pair[1]}`)
       }
-
       XHR.addEventListener('load', function () {
-        console.log('this.responseText', this.responseText)
+        console.log('this.responseText', this.responseText);
         //this is the loads this
         let json = JSON.parse(this.responseText)
         that.response = json
       })
       XHR.addEventListener('error', function () {
-        alert('Oops! Something went wrong.')
+        that.showModal('Oops something went wrong! Please try submitting again in 15 seconds.')
       })
       XHR.open('POST', this.apiURL)
-      XHR.send(fdata)
+      XHR.send(fdata);
+      that.showModal('Submitting your form. Please wait for confirmation', 2000);
     },
     handleBlur: function (event) {
       //console.log('handleBlur', event.target.name)
@@ -155,14 +155,14 @@ export default defineComponent({
       this.printErrors();
     },
     showModal: function (msg, interval) {
-      this.displayModal = true
-      this.$refs.modal.style.display = 'block'
-      //this.modalMessage = msg
-      if (interval) setTimeout(this.closeModal, interval)
+      // Having a msg leads to display
+      this.modalMessage = msg;
+      this.$refs.modal.style.display = 'block';  
+      if (interval) setTimeout(this.closeModal, interval);
     },
     closeModal: function () {
-      this.displayModal = false
-      this.$refs.modal.style.display = 'none'
+      this.modalMessage = '';
+      this.$refs.modal.style.display = 'none';      
     },
     required: function (field) {
       if (typeof field.value === 'boolean') {
@@ -306,11 +306,12 @@ export default defineComponent({
       <div ref="recaptcha"></div>
 
       <button disabled type="submit" ref="submit" v-on:click="attemptSubmit" class="btn btn-default">Submit</button>
+      <span>allowInvalidSubmission: {{ allowInvalidSubmission }}</span>
     </form>
     <div
       ref="modal"
       class="modal fade"
-      :class="{ in: displayModal }"
+      :class="{ in: modalMessage !== '' }"
       id="vueFormModal"
       tabindex="-1"
       role="dialog"
@@ -318,7 +319,9 @@ export default defineComponent({
     >
       <div class="modal-dialog" role="document">
         <div class="modal-content">
-          <div class="modal-body">Submitting please wait...</div>
+          <div class="modal-body">
+            <h2>{{ modalMessage }}</h2>
+          </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" v-on:click="closeModal">Close</button>
           </div>
