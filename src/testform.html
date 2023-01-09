@@ -1,0 +1,352 @@
+
+
+<!DOCTYPE html>
+
+<script src="/static/shared/js/jquery-3.5.1.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/shared/site-2.min.css?v=8530842acc114afc8ef99e4048c4b463" >
+
+
+    <script src="/static/shared/vue2-prod.js"></script>
+
+
+
+
+
+<script>
+var BaseInput = {
+  template: '#base-input-template',
+  props: ['field'],
+  methods: {
+    handleBlur: function(event){
+        console.log('blur');
+        this.touched = true;
+        this.$emit('validate');
+    }
+  },
+  data: function () {
+    return {
+      name: this.field.name,
+      label: this.field.label,
+      touched: false,
+      error: ''
+    }
+  }
+}
+
+var CheckBox = {
+  template: '#checkbox-template',
+  props: ['field'],
+  methods: {
+    handleBlur: function(event){
+        console.log('blur');
+        this.touched = true;
+        this.$emit('validate');
+    }
+  },
+  data: function () {
+    return {
+      name: this.field.name,
+      label: this.field.label,
+      touched: false,
+      error: ''
+    }
+  }
+}
+
+
+var SelectInput = {
+  template: '#select-input-template',
+  props: ['field'],
+  methods: {
+    handleBlur: function(event){
+        console.log('blur');
+        this.touched = true;
+        this.$emit('validate');
+    }
+  },
+  data: function () {
+    return {
+      name: this.field.name,
+      label: this.field.label,
+      touched: false,
+      error: ''
+    }
+  }
+}
+
+var TextareaInput = {
+  template: '#textarea-input-template',
+  props: ['field'],
+  methods: {
+    handleBlur: function(event){
+        console.log('blur');
+        this.touched = true;
+        this.$emit('validate');
+    }
+  },
+  data: function () {
+    return {
+      name: this.field.name,
+      label: this.field.label,
+      touched: false,
+      error: ''
+    }
+  }
+}
+</script>
+<script src="https://www.google.com/recaptcha/api.js?render=6Le0gTEjAAAAAEfS4k3nePqw7lW_vcCMnZmwypIN"></script>
+
+<script type="text/x-template" id="base-input-template">
+<div class="form-group position-relative">
+    <label :for="field.name">{{field.label}}</label>
+    <input :type="field.html_type" class="form-control" :value="field.value" :name="field.name" :id="field.name" v-on:input="$emit('input', $event.target.value)" v-on:blur="handleBlur">
+    <div v-if="this.touched && this.error" class="invalid-tooltip">
+        {{ error.error }}
+    </div>
+    <small class="form-text text-muted">{{field.help}}</small>
+</div>
+</script>
+
+<script type="text/x-template" id="checkbox-template">
+    <div class="form-group required">
+        <div class="form-check">
+            <input type="checkbox" :name="field.name" v-on:change="$emit('input', $event.target.value)" class="form-check-input" required :id="'id_' + field.name">
+            <label class="form-check-label" :for="'id_' + field.name">{{ field.label }}</label>
+            <div v-if="this.touched && this.error"class="invalid-tooltip">
+                {{error.error}}
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-template" id="select-input-template">
+<div class="form-group position-relative">
+    <label :for="field.name">{{field.label}}</label>
+    <select class="form-control" :name="field.name" :id="field.name" v-on:change="$emit('input', $event.target.value)" v-on:blur="handleBlur">
+        <option :key="option" :selected="field.value===option" :value="option" v-for="option in field.options">{{option}}</option>
+    </select>
+    <div v-if="this.touched && this.error"class="invalid-tooltip">
+        {{error.error}}
+    </div>
+    <small class="form-text text-muted">{{field.help}}</small>
+</div>
+</script>
+
+<script type="text/x-template" id="textarea-input-template">
+<div class="form-group position-relative">
+    <label :for="field.name">{{field.label}}</label>
+    <textarea class="form-control" :value="field.value" :name="field.name" :id="field.name" v-on:input="$emit('input', $event.target.value)" v-on:blur="handleBlur"></textarea>
+    <div v-if="this.touched && this.error"class="invalid-tooltip">
+        {{ error.error }}
+    </div>
+    <small class="form-text text-muted">{{field.help}}</small>
+</div>
+</script>
+
+<style>
+.loading::after {
+  display: inline-block;
+  animation: dotty steps(1,end) 1s infinite;
+  content: '';
+}
+
+@keyframes dotty {
+    0%   { content: ''; }
+    25%  { content: '.'; }
+    50%  { content: '..'; }
+    75%  { content: '...'; }
+    100% { content: ''; }
+}
+</style>
+<div style="max-width: 600px; margin: auto">
+    <div id="simple">
+        <h2>Test form</h2>
+        <p>form: </p>
+        <form v-if='state!="closed"'>
+            <template v-for="(field, i) in form.fields">
+                 <template v-if="['singleline', 'email', 'number', 'url'].indexOf(field.field_type) !== -1">
+                    <base-input :key="i" :field="field" v-model="field.value" v-on:validate="validateForm2"></base-input>
+                </template>
+                <template v-else-if="field.field_type == 'dropdown'">
+                    <select-input :key="i" :field="field" v-model="field.value" v-on:validate="validateForm2"></select-input>
+                </template>
+                <template v-else-if="field.field_type == 'multiline'">
+                    <textarea-input :key="i" :field="field" v-model="field.value" v-on:validate="validateForm2"></textarea-input>
+                </template>
+                <template v-else-if="field.field_type == 'checkbox'">
+                    <checkbox-input :key="i" :field="field" v-model="field.value" v-on:validate="validateForm2"></checkbox-input>
+                </template>
+
+            </template>
+            <div id="myLargeModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+                <div class="modal-dialog " role="document">
+                  <div class="modal-content">
+                    <div class="modal-body">
+                      <div v-if='state=="errors"'>
+                        <h4 class="modal-title">{{ modalMessage }}</h4>
+                        <ul>
+                            <li v-for="error in errors">{{error.label }} - {{error.error}}</li>
+                        </ul>
+                      </div>
+                      <h4 v-if='state=="submitting"' class="modal-title loading">{{ modalMessage }}</h4>
+                      <h4 v-if='state=="submitted"' class="modal-title">{{ modalMessage }}<span class="ml-3 glyphicon glyphicon-ok"></span></h4>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <button id="snippetButton" ref="submit" v-on:click="attemptSubmit" :data-state="state">Submit</button>
+        </form>
+        <div id="thank_you" v-else v-html="form.after_email_sent_confirmation"></div>
+    </div>
+</div>
+
+
+<script>
+
+//states are:
+//  entering, submitting, submitted
+
+var app = new Vue({
+  el: '#simple',
+  data: {
+    form: {},
+    state: 'entering',
+  },
+  components: {'base-input': BaseInput, 'select-input': SelectInput, 'textarea-input': TextareaInput, 'checkbox-input': CheckBox},
+  mounted: function (){
+    console.log('mounted bro!');
+    var url = '/simpleform/128/';
+    url += '?country=' + this.getCountry();
+    var oReq = new XMLHttpRequest();
+    var that = this;
+    oReq.addEventListener("load", function() {
+        var json = JSON.parse(this.responseText);
+        that.form = json.form;
+    });
+    oReq.open("GET", url);
+    oReq.send();
+  },
+  methods: {
+    checkRecaptcha3: function(e) {
+        e.preventDefault();
+        var that = this;
+        grecaptcha.ready(function() {
+          //alert(that.form.recaptcha3);
+          grecaptcha.execute(that.form.recaptcha3, {action: 'submit'}).then(function(token) {
+              // Add your logic to submit to your backend server here.
+          });
+        });
+    },
+    attemptSubmit: function(e){
+        e.preventDefault();
+        this.setAllTouched();
+        this.validateForm2();
+        if (this.errors.length === 0){
+            this.submit();
+        }
+        else {
+            this.showModal('There are ' + this.errors.length + ' errors to fix', 'errors', 2000); 
+        }
+    },
+    submit: function(){
+        this.showModal("Please wait while we submit that", 'submitting');
+        var that = this;
+        //Add to mimic delay over internet
+
+        var re = /delay/;
+        var delay = 0;
+        if (re.test(window.location.href)) delay=2000;
+
+        setTimeout(function(){
+            var XHR = new XMLHttpRequest();
+            var fdata = new FormData();
+
+            fdata.append('csrfmiddlewaretoken', that.form.csrf_token);
+            for (i in that.form.fields){
+                var f = that.form.fields[i];
+                fdata.append(f.name, f.value);
+            }
+            console.log(fdata);
+            XHR.addEventListener("load", that.submitGood);
+            XHR.addEventListener("error", that.submitError);
+            XHR.open("POST", "/simpleform/" + that.form.form_id + "/");
+            XHR.send(fdata);
+        }, delay);
+    },
+    submitGood: function(e){
+        this.modalMessage = "Sweet we got that";
+        this.state = 'submitted';
+        var that = this;
+        setTimeout(function(){
+            that.state = 'closed';
+            that.closeModal();
+        }, 2000);
+    },
+    submitError: function(e){
+        alert('Oops! Something went wrong.');
+    },
+    closeModal: function(){
+        $('#myLargeModal').modal('hide');
+    },
+    showModal: function(msg, state, interval){        
+        $('#myLargeModal').modal();
+        this.modalMessage = msg;
+        this.state = state;
+        if (interval) setTimeout(this.closeModal, interval);
+    },
+    setAllTouched: function(){
+        console.log('setAllTouched');
+        for (var i = 0; i < this.$children.length; i++){
+            console.log(this.$children[i].name);
+            this.$children[i].touched = true;
+        }
+    },
+    validateForm2: function(){
+        console.log('validateForm2');
+        for (var i = 0; i < this.$children.length; i++){
+            console.log(this.$children[i].name);
+            this.$children[i].error = null;
+            var field = this.form.fields[this.$children[i].name];
+            for (var j = 0; j < field.validation.length; j++){
+                var funcName = field.validation[j];
+                var errorText = this[funcName](field.value);
+                if (errorText !== ''){
+                    this.$children[i].error = {'label': field.label, 'error': errorText};
+                    break;
+                }
+            }
+        }
+    },
+    required: function(value){    
+        return value.trim() !== '' ? '' : 'Required'; 
+    },
+    email: function(value){
+        return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(value) ? '' : 'Invalid email';
+    },
+    getCountry: function(){
+        var re = /\?country=([A-Z]{2})/;
+        if (re.test(window.location.href)){
+            var groups = window.location.href.match(re);
+            return groups[1];
+        }
+        return null;
+    },    
+    renderForm: function(){
+       this.display = true;       
+    },
+   
+  },
+  computed: {
+    errors: function(){
+        var errs = [];
+        for (var i = 0; i < this.$children.length; i++){
+            if (this.$children[i].error) errs.push(this.$children[i].error);
+        }
+        return errs;
+    }
+  }
+});
+</script>
+
+<script src="/static/pccapp/pcc.min.js?v=ae7bf87076944db39dfd707d87e66048"></script>
+
