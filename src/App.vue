@@ -8,6 +8,7 @@ export default defineComponent({
   data: {
     form: {},
     state: 'entering',
+    modalHeading: '',
     modalMessage: '',
     response: {},
     allowInvalidSubmission: true,
@@ -80,11 +81,11 @@ export default defineComponent({
         that.response = json
       })
       XHR.addEventListener('error', function () {
-        that.showModal('Oops something went wrong! Please try submitting again in 15 seconds', 0)
+        that.showModal('Oops something went wrong!', 'Please submit the form again in 15 seconds', 0);
       })
       XHR.open('POST', this.apiURL)
       XHR.send(fdata)
-      that.showModal('Submitting your form... Please wait for confirmation', 2000)
+      that.showModal('Submitting form...', 'Please wait for confirmation', 2000)
     },
     handleBlur: function (event) {
       //console.log('handleBlur', event.target.name)
@@ -153,9 +154,10 @@ export default defineComponent({
       }
       this.printErrors()
     },
-    showModal: function (msg, interval=0) {
+    showModal: function (heading, msg, interval=0) {
       // Having a msg leads to display
-      this.modalMessage = msg
+      this.modalHeading = heading;
+      this.modalMessage = msg;
       this.$refs.modal.style.display = 'block'
       if (interval) {
         setTimeout(this.closeModal, interval)
@@ -315,7 +317,7 @@ export default defineComponent({
     <div
       ref="modal"
       class="modal fade"
-      :class="{ in: modalMessage !== '' }"
+      :class="{ in: modalHeading !== '' }"
       id="vueFormModal"
       tabindex="-1"
       role="dialog"
@@ -324,7 +326,8 @@ export default defineComponent({
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-body">
-            <h2>{{ modalMessage }}</h2>
+            <h2>{{ modalHeading }}</h2>
+            <p>{{ modalMessage }}</p>
           </div>
           <div class="modal-footer">
             <button v-show="haveCloseButton" type="button" class="btn btn-default" v-on:click="closeModal">
